@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 映射文件的命名空间namespace的值是与这对应的映射接口的全类名 -->
+<mapper namespace="com.lcl.fav.mapper.TagMapper">
+	<select id="findAllTags" resultType="Tag">
+		select * from tag
+	</select>
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+        
+    <!-- 引入外部的属性文件 -->
+    <context:property-placeholder location="classpath:db.properties"/>
+	
+	
+	<!-- 使用注解方式，使用spring的IOC/DI
+		1.指定要扫描注解的包
+		2.对要交给spring容器管理的类进行注解
+		3.对要注入值的属性进行注解
+	 -->
+	 
+	 <!-- 为了防止重复创建bean，spring容器管理的对象不包括@Controller修饰的bean，这些bean交由springmvc容器管理 -->
+	 <context:component-scan base-package="com.lcl.fav">
+	 	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	 </context:component-scan>
+	
+	<!-- 把数据源交给spring容器管理 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="initialSize" value="${jdbc.initialSize}" />
+		<property name="maxTotal" value="${jdbc.maxTotal}" />
+		<property name="minIdle" value="${jdbc.minIdle}" />
+		<property name="validationQuery" value="${jdbc.validationQuery}" />
+	</bean>
+	
+	<!-- 把mybatis的 SqlSessionFactory对象交给spring容器管理-->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="typeAliasesPackage" value="com.lcl.fav.entity"/> 
+		<property name="mapperLocations" value="classpath:mapper/*Mapper.xml"/><!--  映射文件所在的包 -->
+	</bean>
+	
+	<!-- 配置映射接口对应的根据映射文件生成的代理实现类bean，默认代理实现类bean的id为映射接口名首字母小写,不止一个映射文件所以不写id -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.lcl.fav.mapper"/> <!-- 映射接口所在的包 -->
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+	</bean>
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	 
+	<aop:aspectj-autoproxy/>
+	
+	
+	<!-- <aop:config>
+		<aop:pointcut expression="" id="myPointCut"/>
+		<aop:aspect ref="encrytAspect">
+			<aop:before method="beforeMethod" pointcut-ref="myPointCut"/>
+		</aop:aspect>
+	</aop:config> -->
+</beans>

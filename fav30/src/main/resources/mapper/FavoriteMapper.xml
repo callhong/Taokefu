@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 映射文件的命名空间namespace的值是与这对应的映射接口的全类名 -->
+<mapper namespace="com.lcl.fav.mapper.FavoriteMapper">
+
+	<select id="findFavs" resultType="Favorite" parameterType="Tag">
+		select * from favorite
+		<choose>
+			<when test="tname == '-0'"></when>
+			<when test="tname == '-1'">where ftags is null</when>
+			<otherwise>
+				where ftags like '%,${tname},%' or ftags like '%,${tname}' or ftags like '${tname},%' or ftags like '${tname}'
+			</otherwise>
+		</choose>
+	</select>
+</mapper>
